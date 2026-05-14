@@ -123,30 +123,3 @@ RUN_INTEGRATION=1 pytest
 OPENAI_API_KEY=sk-... pytest                    
 RUN_INTEGRATION=1 OPENAI_API_KEY=sk-... pytest  
 ```
-
-## `.env` 配置全表
-
-| 分类 | 变量 | 默认值 | 说明 |
-|---|---|---|---|
-| **OpenAI** | `OPENAI_API_KEY` | — | 留空 → 只压缩、不抽取 |
-| | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | 自部署 vLLM / 中转服务都改这里 |
-| | `OPENAI_MODEL` | `gpt-4o-mini` | 用于抽取的对话模型 |
-| | `LLM_TEMPERATURE` | `0.1` | |
-| | `LLM_MAX_TOKENS` | `2000` | |
-| | `LLM_TOP_P` | `0.1` | |
-| **OpenRouter** | `OPENROUTER_API_KEY` | — | 设了则忽略 OPENAI_* |
-| | `OPENROUTER_API_BASE` | `https://openrouter.ai/api/v1` | |
-| | `OPENROUTER_SITE_URL` / `OPENROUTER_APP_NAME` | — | 可选分析头 |
-| **LLMLingua-2** | `LLMLINGUA_MODEL` | `microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank` | 也接受本地目录 |
-| | `LLMLINGUA_DEVICE` | `cuda` | CPU 写 `cpu` |
-| | `LLMLINGUA_USE_V2` | `true` | false → 用 LLMLingua-1 |
-| | `LLMLINGUA_RATE` | `0.5` | 保留的 token 比例；越小压得越狠 |
-| | `LLMLINGUA_TARGET_TOKEN` | `-1` | 正整数 → 压到约这么多 token |
-| | `LLMLINGUA_MAX_BATCH_SIZE` | `50` | |
-| | `LLMLINGUA_MAX_FORCE_TOKEN` | `100` | |
-| | `LLMLINGUA_INSTRUCTION` | 空 | 可选 instruction 文本 |
-| **并发** | `EXTRACT_MAX_WORKERS` | `5` | `_extract_with_prompt` 的最大并发数；event 模式实际可达 `2×` |
-| **测试** | `RUN_INTEGRATION` | 未设置 | `1` → 启用真实模型测试 |
-
-加载优先级：**调用时传给类构造函数的参数 > 真实 OS 环境变量 > `.env` 文件 > 代码里的默认值**。
-
