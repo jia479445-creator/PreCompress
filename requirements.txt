@@ -1,0 +1,8 @@
+# Core runtime
+llmlingua>=0.2.2
+transformers>=4.36.0
+openai>=1.10.0
+httpx>=0.25.0
+
+# Tests
+pytest>=7.4.0
