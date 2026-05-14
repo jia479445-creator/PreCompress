@@ -1,3 +1,13 @@
+# Use the official PyTorch CUDA wheels by default. Other packages still come
+# from the regular PyPI index via the implicit fallback.
+# - cu121 wheels work on CUDA 12.1+ drivers (covers all current AutoDL images).
+# - macOS / CPU-only Linux: see README for the CPU-torch install.
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# GPU PyTorch (installed before llmlingua so llmlingua's torch>=... constraint
+# is satisfied without falling back to the CPU wheel on PyPI).
+torch>=2.1.0
+
 # Core runtime
 llmlingua>=0.2.2
 transformers>=4.36.0
