@@ -1,4 +1,4 @@
-"""Lifted verbatim from `src/lightmem/memory/prompts.py`.
+"""
 
 Contains:
     * METADATA_GENERATE_PROMPT          - flat-mode factual extraction

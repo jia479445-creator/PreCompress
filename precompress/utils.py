@@ -1,5 +1,3 @@
-"""Lifted from `src/lightmem/memory/utils.py` (only `clean_response`)."""
-
 from __future__ import annotations
 
 import json

@@ -1,18 +1,3 @@
-"""Unified .env-based configuration layer.
-
-This module is the **only** place outside `pipeline.py` that is not lifted
-verbatim from LightMem. It provides:
-
-    * `load_dotenv_if_present()` - a tiny zero-dependency `.env` parser.
-    * `llmlingua_config_from_env()` - builds a `LlmLingua2Config` from env vars.
-    * `manager_config_from_env()` - builds a `BaseMemoryManagerConfig` from env vars.
-    * `run_from_env(text)` - convenience: load .env + run the full pipeline.
-
-The `.env` file is loaded automatically when `precompress` is imported (see
-`precompress/__init__.py`). Real OS environment variables always win over the
-file, so you can still override per-process: `OPENAI_MODEL=gpt-4o python -m examples.demo`.
-"""
-
 from __future__ import annotations
 
 import os

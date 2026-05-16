@@ -1,12 +1,3 @@
-"""Glue script: drives the original-style `LlmLingua2Compressor.compress` +
-`OpenaiManager.meta_text_extract` pipeline on a single input.
-
-This file is **not** lifted from LightMem — it is the bare minimum orchestration
-needed to call the two preserved classes end-to-end. The slice of behavior
-matches `src/lightmem/memory/lightmem.py::LightMemory.add_memory`'s
-pre-compression -> extraction path, minus topic segmentation and buffer logic.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,1 +1,1 @@
-"""PreCompress CLI entrypoints."""
+

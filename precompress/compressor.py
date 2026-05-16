@@ -67,7 +67,7 @@ class LlmLingua2Config(BaseModel):
 
 class LlmLingua2Compressor:
     def __init__(self, config: Optional[LlmLingua2Config] = None):
-        self.config = config
+        self.config = config or LlmLingua2Config()
         self._disable_runtime_compression = False
         self._normalization_logged = False
         self._disable_logged = False
@@ -84,18 +84,7 @@ class LlmLingua2Compressor:
 
         try:
             from llmlingua import PromptCompressor
-            if config.llmlingua_config['use_llmlingua2'] is True:
-                self._compressor = PromptCompressor(
-                    model_name=config.llmlingua_config['model_name'],
-                    device_map=config.llmlingua_config['device_map'],
-                    use_llmlingua2=config.llmlingua_config['use_llmlingua2'],
-                    llmlingua2_config=config.llmlingua2_config
-                )
-            else:
-                self._compressor = PromptCompressor(
-                    model_name=config.llmlingua_config['model_name'],
-                    device_map=config.llmlingua_config['device_map']
-                )
+            self._compressor = self._build_prompt_compressor(PromptCompressor, self.config)
             # LLMLingua-2 internals branch on compressor.model_name substring and may
             # raise NotImplementedError for local path aliases (e.g. "/root/.../llmlingua-2").
             self._normalize_llmlingua_model_name()
@@ -103,6 +92,50 @@ class LlmLingua2Compressor:
             self.tokenizer = getattr(self._compressor, "tokenizer", None)
         except Exception as e:
             raise RuntimeError(f"Failed to initialize LlmLingua2Compressor: {str(e)}")
+
+    @staticmethod
+    def _is_cuda_boot_error(exc: Exception) -> bool:
+        message = str(exc).lower()
+        return any(
+            hint in message
+            for hint in (
+                "nvidia driver on your system is too old",
+                "torch._c._cuda_init",
+                "cuda",
+                "cudart",
+            )
+        )
+
+    def _build_prompt_compressor(self, prompt_compressor_cls: Type, config: LlmLingua2Config):
+        llm_cfg = config.llmlingua_config
+        model_name = llm_cfg["model_name"]
+        requested_device = llm_cfg.get("device_map", "cpu")
+        use_v2 = llm_cfg.get("use_llmlingua2", True)
+
+        def _instantiate(device_map: str):
+            if use_v2 is True:
+                return prompt_compressor_cls(
+                    model_name=model_name,
+                    device_map=device_map,
+                    use_llmlingua2=use_v2,
+                    llmlingua2_config=config.llmlingua2_config,
+                )
+            return prompt_compressor_cls(
+                model_name=model_name,
+                device_map=device_map,
+            )
+
+        try:
+            return _instantiate(requested_device)
+        except Exception as exc:
+            if str(requested_device).startswith("cuda") and self._is_cuda_boot_error(exc):
+                print(
+                    "llmlingua cuda initialization failed; falling back to cpu. "
+                    f"original error: {exc}"
+                )
+                self.config.llmlingua_config["device_map"] = "cpu"
+                return _instantiate("cpu")
+            raise
 
     def _normalize_llmlingua_model_name(self) -> None:
         compressor_name = str(getattr(self._compressor, "model_name", "") or "")
