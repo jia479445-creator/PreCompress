@@ -1,19 +1,3 @@
-"""Near-verbatim port of `src/lightmem/factory/memory_manager/openai.py`.
-
-Changes vs. the original LightMem source:
-    * `BaseMemoryManagerConfig` (originally in
-      `src/lightmem/configs/memory_manager/base_config.py`) is inlined at the
-      top of this file so the module does not depend on the `lightmem.*` package.
-    * Imports of `EXTRACTION_PROMPTS`, `METADATA_GENERATE_PROMPT`, and
-      `clean_response` are rerouted to this standalone package's local modules.
-    * `_extract_with_prompt`'s hardcoded `max_workers = 5` cap is now read
-      from the `EXTRACT_MAX_WORKERS` environment variable (default still 5,
-      matching the original LightMem behaviour exactly).
-
-Both `extraction_mode="flat"` and `extraction_mode="event"` paths are kept
-verbatim, including `_merge_dual_perspective_results`.
-"""
-
 import concurrent
 import json
 import os
@@ -28,9 +12,6 @@ from .prompts import EXTRACTION_PROMPTS, METADATA_GENERATE_PROMPT
 from .utils import clean_response
 
 
-# ---------------------------------------------------------------------------
-# Inlined from src/lightmem/configs/memory_manager/base_config.py
-# ---------------------------------------------------------------------------
 class BaseMemoryManagerConfig:
     """
     Config for LLMs.
@@ -98,10 +79,6 @@ class BaseMemoryManagerConfig:
         self.route = route
 
 
-# ---------------------------------------------------------------------------
-# Verbatim from src/lightmem/factory/memory_manager/openai.py
-# (event-mode branch + dual-perspective merge removed; flat-mode preserved)
-# ---------------------------------------------------------------------------
 model_name_context_windows = {
     "gpt-4o-mini": 128000,
     "qwen3-30b-a3b-instruct-2507": 128000,
@@ -386,9 +363,7 @@ class OpenaiManager:
 
             return "\n".join(message_lines)
 
-        # Deviation from verbatim LightMem: the cap was hardcoded to 5 in the
-        # original; here it reads `EXTRACT_MAX_WORKERS` so it can be tuned via .env.
-        # Default value 5 matches the original LightMem behaviour exactly.
+
         try:
             _max_workers_cap = int(os.environ.get("EXTRACT_MAX_WORKERS", "5"))
         except ValueError:

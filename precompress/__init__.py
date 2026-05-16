@@ -1,21 +1,3 @@
-"""precompress: standalone LLMLingua-2 pre-compression + LLM core-memory extractor.
-
-Source mapping (LightMem repo paths) - kept as close to verbatim as possible:
-    compressor.py  <- src/lightmem/factory/pre_compressor/llmlingua_2.py
-                      + src/lightmem/configs/pre_compressor/llmlingua_2.py
-    extractor.py   <- src/lightmem/factory/memory_manager/openai.py
-                      + src/lightmem/configs/memory_manager/base_config.py
-    prompts.py     <- src/lightmem/memory/prompts.py
-    utils.py       <- src/lightmem/memory/utils.py (clean_response only)
-    pipeline.py    -- thin orchestrator (mirrors LightMemory.add_memory's
-                      pre-compression -> meta_text_extract slice)
-    env.py         -- .env loader + config factories (this layer is new)
-
-On import, this package automatically loads `.env` from the current working
-directory (walking up to the filesystem root). Real OS environment variables
-always win over the file.
-"""
-
 from .compressor import LlmLingua2Compressor, LlmLingua2Config
 from .env import (
     llmlingua_config_from_env,
@@ -24,6 +6,13 @@ from .env import (
     run_from_env,
 )
 from .extractor import BaseMemoryManagerConfig, OpenaiManager
+from .longmemeval import (
+    flatten_to_messages,
+    iter_sessions,
+    load_longmemeval,
+    pick_sample,
+    resolve_data_path,
+)
 from .pipeline import PipelineResult, run_pipeline
 from .prompts import (
     EXTRACTION_PROMPTS,
@@ -61,6 +50,12 @@ __all__ = [
     "UPDATE_PROMPT",
     "EXTRACTION_PROMPTS",
     "clean_response",
+    # LongMemEval data loader
+    "load_longmemeval",
+    "resolve_data_path",
+    "iter_sessions",
+    "flatten_to_messages",
+    "pick_sample",
 ]
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

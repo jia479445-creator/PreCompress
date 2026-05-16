@@ -1,125 +1,99 @@
-# precompress
+# PreCompress
+
+本项目用于在把长对话送进大模型之前，先做一层预处理，尽量减少无效 token 的消耗。分为三个步骤：
+
+1. 调用 `LLMLingua-2` 压缩输入对话
+2. 把压缩后的对话送给 LLM 做一次事实抽取
+3. 返回结果，或者按样本写成 JSON 文件
+
 
 ## 项目结构
 
-```
-standalone/
+```text
+PreCompress/
 ├── README.md
-├── .env.example            # 配置模板 —— 复制成 .env 后编辑
-├── .gitignore              # 已忽略 .env，防止 key 泄漏
+├── .env.example            # 配置模板
+├── .gitignore
 ├── pyproject.toml
 ├── requirements.txt
+├── data/
+│   └── README.md           # 数据集放置说明
 ├── precompress/
 │   ├── __init__.py         # 导入时自动加载 .env
-│   ├── compressor.py
-│   ├── extractor.py
-│   ├── pipeline.py
-│   ├── prompts.py
+│   ├── compressor.py       # LLMLingua-2 压缩器
+│   ├── extractor.py        # OpenAI-compatible LLM 抽取器
+│   ├── pipeline.py         # 压缩 + 事实抽取 的端到端流程入口
+│   ├── prompts.py          # 抽取 prompt
 │   ├── utils.py
-│   └── env.py              # .env 解析 + 配置工厂
+│   ├── env.py              
+│   └── longmemeval.py      
 ├── examples/
-│   └── demo.py             # CLI 入口（读 .env）
-└── tests/
-    ├── conftest.py
-    ├── data/
-    │   ├── sample_dialogue.json   # flat 模式测试数据
-    │   └── locomo_dialogue.json   # event 模式测试数据
-    ├── test_compressor.py        # 真实 LLMLingua-2 模型测试
-    ├── test_extractor.py         # 真实 OpenAI API 测试（flat + event）
-    └── test_pipeline.py          # 端到端测试
+│   ├── __init__.py
+│   ├── demo.py             # 单样本快速复现 demo
+│   └── run_longmemeval.py  
 ```
 
-## 复现步骤
-
-### 步骤 1：下载项目
+## 安装
 
 ```bash
-git clone https://github.com/jia479445-creator/PreCompress.git
-```
-
-### 步骤 2：环境配置
-
-```bash
-cd /root/autodl-tmp/PreCompress      # 改成你的实际路径
+cd PreCompress
 python3 -m venv .venv
 source .venv/bin/activate
-
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 步骤 3：下载 LLMLingua-2 权重
+下载 `LLMLingua-2` 权重：
 
 ```bash
 hf download microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank \
-    --local-dir ./models/llmlingua-2-bert
+  --local-dir ./models/llmlingua-2-bert
 ```
 
-### 步骤 4：配置 `.env`
+
+## 配置
+
+复制配置模板：
 
 ```bash
 cp .env.example .env
-chmod 600 .env      # 含 API key，限制权限
-vim .env
 ```
 
-配置您的OPENAI_API_KEY、OPENAI_MODEL、LLMLINGUA_MODEL、LLMLINGUA_RATE、LLMLINGUA_DEVICE。
-
-### 步骤 5：快速跑通
+修改基础配置：
 
 ```bash
-# 只跑压缩
-python -c "
-from precompress import LlmLingua2Config, LlmLingua2Compressor
-cfg = LlmLingua2Config(llmlingua_config={
-    'model_name': '/root/autodl-tmp/models/llmlingua-2-bert',
-    'device_map': 'cuda',
-    'use_llmlingua2': True,
-})
-c = LlmLingua2Compressor(cfg)
-out = c.compress([{'role': 'user', 'content': 'My name is Alice. I am a physics teacher in Boston.'}], c.tokenizer)
-print('compressed:', out[0]['content'])
-"
+OPENAI_API_KEY=sk-...
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
 
-# 跑 demo
+LLMLINGUA_MODEL=/abs/path/to/PreCompress/models/llmlingua-2-bert
+LLMLINGUA_DEVICE=cpu
+
+LONGMEMEVAL_DATA=/abs/path/to/longmemeval_s.json
+```
+
+## 快速 Demo
+
+```bash
 python -m examples.demo
 ```
 
-### 步骤 6：跑测试套件（可选）
+## 完整跑 LongMemEval
+
+运行入口：
 
 ```bash
-RUN_INTEGRATION=1 OPENAI_API_KEY=$OPENAI_API_KEY pytest -v
-
-RUN_INTEGRATION=1 pytest -v tests/test_compressor.py
-
-OPENAI_API_KEY=$OPENAI_API_KEY pytest -v tests/test_extractor.py
+python -m examples.run_longmemeval \
+  --output-dir outputs/longmemeval \
+  --mode flatten
 ```
 
-## 三种使用方式
+两种模式：
 
-### 方式 A：CLI 一次性运行
+- `flatten`：把一个样本的所有 session 拼成一次输入，再做一次压缩和抽取
+- `session`：每个 session 分开跑，结果按 session 分别保存
 
-```bash
-python -m examples.demo                  # 内置 demo 文本
-python -m examples.demo /data/input.txt  # 处理你自己的文件
-```
+输出：
 
-### 方式 B：Python API
-
-```python
-from precompress import run_from_env
-
-result = run_from_env("我的长文本……")
-print("压缩后：", result.compressed_messages[0]["content"])
-print("核心事实：", result.core_memory_facts)
-print(f"token：{result.tokens_before} → {result.tokens_after}")
-```
-
-### 方式 C：pytest 真实集成测试
-
-```bash
-pytest                                         
-RUN_INTEGRATION=1 pytest                        
-OPENAI_API_KEY=sk-... pytest                    
-RUN_INTEGRATION=1 OPENAI_API_KEY=sk-... pytest  
-```
+- 每个样本写一个 JSON 到 `--output-dir`
+- 这里保存的是压缩结果和抽取结果，不是数据库

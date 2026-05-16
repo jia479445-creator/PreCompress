@@ -139,7 +139,7 @@ def llmlingua_config_from_env() -> LlmLingua2Config:
         },
         compress_config={
             "instruction": _env_str("LLMLINGUA_INSTRUCTION", "") or "",
-            "rate": _env_float("LLMLINGUA_RATE", 0.5),
+            "rate": _env_float("LLMLINGUA_RATE", 0.8),
             "target_token": _env_int("LLMLINGUA_TARGET_TOKEN", -1),
         },
     )

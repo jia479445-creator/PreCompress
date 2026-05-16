@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "precompress"
 version = "0.1.0"
-description = "Standalone LLMLingua-2 pre-compression + LLM core-memory extractor, extracted from LightMem."
+description = "PreCompress: LLMLingua-2 pre-compression + LLM fact extraction."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -15,14 +15,7 @@ dependencies = [
   "httpx>=0.25.0",
 ]
 
-[project.optional-dependencies]
-test = ["pytest>=7.4.0"]
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["precompress*"]
 exclude = ["tests*", "examples*"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]

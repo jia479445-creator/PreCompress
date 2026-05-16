@@ -1,11 +1,3 @@
-"""Near-verbatim port of `src/lightmem/factory/pre_compressor/llmlingua_2.py`.
-
-The only changes vs. the original LightMem source are:
-    * `LlmLingua2Config` (originally in
-      `src/lightmem/configs/pre_compressor/llmlingua_2.py`) is inlined at the top
-      of this file so the module does not depend on the `lightmem.*` package.
-"""
-
 import os
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -13,9 +5,6 @@ from pydantic import BaseModel, Field, field_validator
 from transformers import PreTrainedTokenizerBase
 
 
-# ---------------------------------------------------------------------------
-# Inlined from src/lightmem/configs/pre_compressor/llmlingua_2.py
-# ---------------------------------------------------------------------------
 class LlmLingua2Config(BaseModel):
     llmlingua_config: Dict[str, Any] = Field(
         default={
@@ -76,9 +65,6 @@ class LlmLingua2Config(BaseModel):
         return v
 
 
-# ---------------------------------------------------------------------------
-# Compressor (verbatim from src/lightmem/factory/pre_compressor/llmlingua_2.py)
-# ---------------------------------------------------------------------------
 class LlmLingua2Compressor:
     def __init__(self, config: Optional[LlmLingua2Config] = None):
         self.config = config
