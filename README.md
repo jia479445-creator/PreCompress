@@ -96,4 +96,3 @@ python -m examples.run_longmemeval \
 输出：
 
 - 每个样本写一个 JSON 到 `--output-dir`
-- 这里保存的是压缩结果和抽取结果，不是数据库
