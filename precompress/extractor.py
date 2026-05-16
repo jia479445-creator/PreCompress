@@ -386,7 +386,7 @@ class OpenaiManager:
                         global_topic_id = topic_idx + 1
 
                     topic_text = concatenate_messages(topic_segment, messages_use)
-                    user_prompt_parts.append(f"--- Topic {global_topic_id} ---\n{topic_text}")
+                    user_prompt_parts.append(f"--- Segment {global_topic_id} ---\n{topic_text}")
 
                 print(f"User prompt for API call {api_call_idx}:\n" + "\n".join(user_prompt_parts))
                 user_prompt = "\n".join(user_prompt_parts)

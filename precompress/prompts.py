@@ -1,5 +1,4 @@
 """
-
 Contains:
     * METADATA_GENERATE_PROMPT          - flat-mode factual extraction
     * METADATA_GENERATE_PROMPT_locomo   - LoCoMo variant of the flat prompt
@@ -12,11 +11,11 @@ Contains:
 
 METADATA_GENERATE_PROMPT = """
 You are a Personal Information Extractor.
-Your task is to extract **all possible facts or information** about the user from a conversation,
-where the dialogue is organized into topic segments separated by markers like:
+Your task is to extract **all possible facts or information** about the user from a conversation.
+The input may be a long compressed dialogue and may be split into one or more sequential segments.
 
 Input format:
---- Topic X ---
+--- Segment X ---
 [timestamp, weekday] source_id.SpeakerName: message
 ...
 
@@ -48,10 +47,10 @@ Please return your response in JSON format.
 
 Examples:
 
---- Topic 1 ---
+--- Segment 1 ---
 [2022-03-20T13:21:00.000, Sun] 0.User: My name is Alice and I work as a teacher.
 [2022-03-20T13:21:00.500, Sun] 1.User: My favourite movies are Inception and Interstellar.
---- Topic 2 ---
+--- Segment 2 ---
 [2022-03-20T13:21:01.000, Sun] 2.User: I visited Paris last summer.
 {"data": [
   {"source_id": 0, "fact": "User's name is Alice."},
@@ -66,10 +65,10 @@ Reminder: Be exhaustive. Unless a message is purely meaningless, extract and out
 
 METADATA_GENERATE_PROMPT_locomo = """
 You are a Personal Information Extractor.
-Your task is to extract **all possible facts or information** about the speakers from a conversation,
-where the dialogue is organized into topic segments separated by markers like:
+Your task is to extract **all possible facts or information** about the speakers from a conversation.
+The input may be split into one or more sequential segments.
 
---- Topic X ---
+--- Segment X ---
 [timestamp, weekday] <source_id>.<SpeakerName>: <message>
 ...
 
@@ -117,14 +116,14 @@ Important Instructions:
    }
 
 Examples:
---- Topic 1 ---
+--- Segment 1 ---
 [2024-01-07T17:24:00.000, Sun] 0.Tim: Hey John! Next month I'm off to Ireland for a semester in Galway
 [2024-01-07T17:24:01.000, Sun] 1.John: That's awesome! Where will you stay?
 [2024-01-07T17:24:02.000, Sun] 2.Tim: In Galway. I also want to visit The Cliffs of Moher
 [2024-01-07T17:24:03.000, Sun] 3.John: Nice! By the way, I held a benefit basketball game last week (image description: basketball court with players and audience)
 [2024-01-07T17:24:04.000, Sun] 4.Tim: Cool! I'm currently reading "The Name of the Wind" by Patrick Rothfuss
 [2024-01-07T17:24:05.000, Sun] 5.John: That sounds interesting!
---- Topic 2 ---
+--- Segment 2 ---
 [2024-01-12T13:41:00.000, Fri] 6.John: Got great news! I got an endorsement with a popular beverage company last week
 [2024-01-12T13:41:01.000, Fri] 7.Tim: Congrats! That's amazing
 [2024-01-12T13:41:02.000, Fri] 8.John: Thanks! By the way, Barcelona is a must-visit city
@@ -149,9 +148,9 @@ Reminder: Be exhaustive and ALWAYS include specific names, titles, locations, an
 LoCoMo_Event_Binding_factual = """
 You are a Personal Information Extractor.
 Your task is to extract **all possible facts or information** about the speakers from a conversation,
-where the dialogue is organized into topic segments separated by markers like:
+where the dialogue is organized into sequential segments separated by markers like:
 
---- Topic X ---
+--- Segment X ---
 [timestamp, weekday] <source_id>.<SpeakerName>: <message>
 ...
 
@@ -199,14 +198,14 @@ Important Instructions:
    }
 
 Examples:
---- Topic 1 ---
+--- Segment 1 ---
 [2024-01-07T17:24:00.000, Sun] 0.Tim: Hey John! Next month I'm off to Ireland for a semester in Galway
 [2024-01-07T17:24:01.000, Sun] 1.John: That's awesome! Where will you stay?
 [2024-01-07T17:24:02.000, Sun] 2.Tim: In Galway. I also want to visit The Cliffs of Moher
 [2024-01-07T17:24:03.000, Sun] 3.John: Nice! By the way, I held a benefit basketball game last week (image description: basketball court with players and audience)
 [2024-01-07T17:24:04.000, Sun] 4.Tim: Cool! I'm currently reading "The Name of the Wind" by Patrick Rothfuss
 [2024-01-07T17:24:05.000, Sun] 5.John: That sounds interesting!
---- Topic 2 ---
+--- Segment 2 ---
 [2024-01-12T13:41:00.000, Fri] 6.John: Got great news! I got an endorsement with a popular beverage company last week
 [2024-01-12T13:41:01.000, Fri] 7.Tim: Congrats! That's amazing
 [2024-01-12T13:41:02.000, Fri] 8.John: Thanks! By the way, Barcelona is a must-visit city
@@ -233,8 +232,8 @@ You are a Relational Memory Extractor.
 Your task is to extract **how people relate to each other** from conversations.
 Note: Another system extracts factual content (what was said).
 Your focus is on the **relational and emotional dynamics** between people.
-The dialogue is organized into topic segments:
---- Topic X ---
+The dialogue is organized into sequential segments:
+--- Segment X ---
 [timestamp, weekday] <source_id>.<SpeakerName>: <message>
 ...
 Note: Messages may include visual context marked as [visual_context: ...] which provides additional scene information.
